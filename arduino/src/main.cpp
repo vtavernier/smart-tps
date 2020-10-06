@@ -146,6 +146,8 @@ void loop() {
 		size_t falling_ptr = 0;
 		size_t rising_ptr = 0;
 		unsigned long last_t = samples[0].t;
+		size_t low_samples = 0;
+		size_t high_samples = 0;
 
 		for (size_t i = 0; i < SAMPLE_COUNT; ++i) {
 			auto &s = samples[(i + samples_idx) % SAMPLE_COUNT];
@@ -159,6 +161,15 @@ void loop() {
 				// Rising edge
 				high = true;
 				rising_edges[rising_ptr++] = (last_t + s.t) / 2;
+			}
+
+			// Add duration of the current sample to the target
+			if (s.t > last_t) {
+				if (high) {
+					high_samples += s.t - last_t;
+				} else {
+					low_samples += s.t - last_t;
+				}
 			}
 
 			last_t = s.t;
@@ -200,7 +211,8 @@ void loop() {
 			    (falling_sum + rising_sum) / (2.0f * valid);
 
 			// Compute duty cycle from this
-			float dtc = (100.0f * dt_duration_sum / valid) / period;
+			//float dtc = (100.0f * dt_duration_sum / valid) / period;
+			float dtc = 100.0f * high_samples / (high_samples + low_samples);
 
 			// Compute frequency
 			float freq = 1.0e6f / period;
