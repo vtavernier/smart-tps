@@ -11,7 +11,7 @@ class Tps {
 	/// OLED screen instance
 	MicroOLED oled_;
 	/// Load injector shader pwm
-	mbed::PwmOut pin_lts_;
+	//mbed::PwmOut pin_lts_;
 	/// Load injector liner pwm
 	mbed::PwmOut pin_ltl_;
 	/// Load injector base
