@@ -1,62 +1,8 @@
-//#include <Adafruit_INA219.h>
-#include <Arduino.h>
-#include <SFE_MicroOLED.h>
+#include "tps.hpp"
 
-const int OLED_CS = 10;
-const int OLED_RST = 9;
-const int OLED_DC = 8;
+Tps tps;
 
-MicroOLED oled(OLED_RST, OLED_DC, OLED_CS);
-
-const int LOAD_SIM = 2;
-
-#include <mbed/mbed.h>
-mbed::PwmOut pinLoadSim(digitalPinToPinName(LOAD_SIM));
-mbed::PwmOut pinLedR(digitalPinToPinName(LEDR));
-mbed::PwmOut pinLedG(digitalPinToPinName(LEDG));
-mbed::PwmOut pinLedB(digitalPinToPinName(LEDB));
-
-#include <mbed_INA219.h>
-
-mbed::I2C i2c(digitalPinToPinName(PIN_WIRE_SDA),
-	      digitalPinToPinName(PIN_WIRE_SCL));
-
-#define INA219_ADDR 0x41
-mbed_INA219 *ina219;
-
-void setup() {
-	// Set frequency on the PWM pin
-	pinLoadSim.period_us(6667);
-	pinLoadSim.write(0.5f);
-
-	// Setup LEDS
-	pinLedR.write(1.0f);
-	pinLedG.write(1.0f);
-	pinLedB.write(1.0f);
-	for (auto *pin : {&pinLedR, &pinLedG, &pinLedB}) {
-		pin->period_ms(10);
-	}
-
-	pinLedR.write(0.0f);
-
-	// Set I2C bus frequency
-	// TODO: 1MHz on PCB?
-	i2c.frequency(400000);
-	ina219 = new mbed_INA219(i2c, INA219_ADDR);
-
-	pinLedR.write(1.0f);
-	pinLedB.write(0.0f);
-
-	// Initialize, clear screen
-	oled.begin();
-	oled.setFontType(0);
-	oled.clear(PAGE);
-	oled.clear(ALL);
-	oled.display();
-
-	pinLedB.write(1.0f);
-	pinLedG.write(0.0f);
-}
+void setup() { tps.begin(); }
 
 struct Sample {
 	unsigned long t;
@@ -71,36 +17,27 @@ size_t samples_idx = 0;
 unsigned long falling_edges[SAMPLE_COUNT] = {0};
 unsigned long rising_edges[SAMPLE_COUNT] = {0};
 
-
 const size_t STAT_COUNT = 10;
 float stat_freq = 0.f;
 float stat_duty_cycle_samples[STAT_COUNT] = {0};
 size_t stat_duty_cycle_ptr = 0;
-
-/**
- * Set the current load status
- *
- * @param pwm Pulse width of the load
- */
-void setLoad(float pwm) {
-	pinLoadSim.write(pwm);
-	pinLedR.write(1.0f - pwm);
-}
 
 unsigned long mean_lastms = 0;
 unsigned long screen_lastms = 0;
 bool setaddr = true;
 
 void loop() {
-	float expected = ((millis() / 10000) % 4) / 4.f;
-	// Update load LED
-	setLoad(expected);
+	// TODO: Move rest of loop code into the Tps::poll method
+	tps.poll();
 
-	pinLedG.write(1.0f);
-	pinLedB.write(0.0f);
+	float expected = ((millis() / 10000) % 4) / 4.f;
+
+	// Update load
+	tps.set_load(expected > 0.f, expected, 0.);
+	tps.set_led(0.0f, 0.0f, expected);
 
 	// Update current average
-	auto val = ina219->get_current();
+	auto val = tps.get_liner_current();
 	if (val != MAXFLOAT) {
 		auto &c = samples[samples_idx];
 		c.t = micros();
@@ -117,7 +54,8 @@ void loop() {
 		    (samples_idx + 1) % (sizeof(samples) / sizeof(samples[0]));
 	}
 
-	pinLedB.write(1.0f);
+	// Add green to the LED
+	tps.set_led(0.0f, 1.0f, expected);
 
 	unsigned long now = millis();
 
@@ -211,21 +149,25 @@ void loop() {
 			    (falling_sum + rising_sum) / (2.0f * valid);
 
 			// Compute duty cycle from this
-			//float dtc = (100.0f * dt_duration_sum / valid) / period;
-			float dtc = 100.0f * high_samples / (high_samples + low_samples);
+			// float dtc = (100.0f * dt_duration_sum / valid) /
+			// period;
+			float dtc = 100.0f * high_samples /
+				    (high_samples + low_samples);
 
 			// Compute frequency
 			float freq = 1.0e6f / period;
 
 			// Update stats
 			stat_duty_cycle_samples[stat_duty_cycle_ptr] = dtc;
-			stat_duty_cycle_ptr = (stat_duty_cycle_ptr + 1) % STAT_COUNT;
+			stat_duty_cycle_ptr =
+			    (stat_duty_cycle_ptr + 1) % STAT_COUNT;
 			stat_freq = freq;
 		}
 	}
 
 	if (now - screen_lastms > 250) {
 		screen_lastms = now;
+		auto &oled(tps.get_oled());
 
 		oled.clear(PAGE);
 

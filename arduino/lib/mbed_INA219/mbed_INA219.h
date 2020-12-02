@@ -135,6 +135,8 @@ class mbed_INA219 {
 
 public:
 	mbed_INA219(mbed::I2C &i2c, char addr);
+	
+	void begin();
 
 	float get_current();
 };

@@ -1,13 +1,15 @@
 #include "mbed_INA219.h"
 
 mbed_INA219::mbed_INA219(mbed::I2C &i2c, char addr)
-    : i2c_(i2c), addr_(addr), last_reg_(-1) {
-	write(INA219_REG_CALIBRATION, 4096);
-	write(INA219_REG_CONFIG, INA219_CONFIG_BVOLTAGERANGE_32V |
-				     INA219_CONFIG_GAIN_8_320MV |
-				     INA219_CONFIG_BADCRES_12BIT |
-				     INA219_CONFIG_SADCRES_12BIT_2S_1060US |
-				     INA219_CONFIG_MODE_SVOLT_CONTINUOUS);
+    : i2c_(i2c), addr_(addr), last_reg_(-1) {}
+
+void mbed_INA219::begin() {
+    write(INA219_REG_CALIBRATION, 4096);
+    write(INA219_REG_CONFIG, INA219_CONFIG_BVOLTAGERANGE_32V |
+				 INA219_CONFIG_GAIN_8_320MV |
+				 INA219_CONFIG_BADCRES_12BIT |
+				 INA219_CONFIG_SADCRES_12BIT_2S_1060US |
+				 INA219_CONFIG_MODE_SVOLT_CONTINUOUS);
 }
 
 void mbed_INA219::write(char addr, uint16_t val) {
