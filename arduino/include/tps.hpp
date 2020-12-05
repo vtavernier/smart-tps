@@ -29,7 +29,7 @@ class Tps {
 	/// INA219 instance for shader
 	mbed_INA219 ina219_shader_;
 
-       public:
+      public:
 	/// Construct a new Tps instance
 	Tps();
 

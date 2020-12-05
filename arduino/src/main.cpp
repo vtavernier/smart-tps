@@ -50,8 +50,7 @@ void loop() {
 		// SerialUSB.println(c.i);
 
 		// Update index
-		samples_idx =
-		    (samples_idx + 1) % (sizeof(samples) / sizeof(samples[0]));
+		samples_idx = (samples_idx + 1) % (sizeof(samples) / sizeof(samples[0]));
 	}
 
 	// Add green to the LED
@@ -65,8 +64,10 @@ void loop() {
 		// First pass, determine max and min
 		float max = -10000.f, min = 10000.f;
 		for (auto &s : samples) {
-			if (s.i > max) max = s.i;
-			if (s.i < min) min = s.i;
+			if (s.i > max)
+				max = s.i;
+			if (s.i < min)
+				min = s.i;
 		}
 
 		// Currently no current, skip it
@@ -93,8 +94,7 @@ void loop() {
 			if (high && s.i < mid) {
 				// Falling edge
 				high = false;
-				falling_edges[falling_ptr++] =
-				    (last_t + s.t) / 2;
+				falling_edges[falling_ptr++] = (last_t + s.t) / 2;
 			} else if (!high && s.i > mid) {
 				// Rising edge
 				high = true;
@@ -114,29 +114,22 @@ void loop() {
 		}
 
 		// Third pass: compute period and duty cycle
-		size_t max_ptr =
-		    falling_ptr < rising_ptr ? falling_ptr : rising_ptr;
+		size_t max_ptr = falling_ptr < rising_ptr ? falling_ptr : rising_ptr;
 
-		unsigned long falling_sum = 0, rising_sum = 0,
-			      dt_duration_sum = 0;
+		unsigned long falling_sum = 0, rising_sum = 0, dt_duration_sum = 0;
 		unsigned long valid = 0;
 
 		for (size_t i = 1; i < max_ptr; ++i) {
-			if (falling_edges[i] > falling_edges[i - 1] &&
-			    rising_edges[i] > rising_edges[i - 1]) {
+			if (falling_edges[i] > falling_edges[i - 1] && rising_edges[i] > rising_edges[i - 1]) {
 				// Frequency computation
-				falling_sum +=
-				    falling_edges[i] - falling_edges[i - 1];
-				rising_sum +=
-				    rising_edges[i] - rising_edges[i - 1];
+				falling_sum += falling_edges[i] - falling_edges[i - 1];
+				rising_sum += rising_edges[i] - rising_edges[i - 1];
 
 				// Duty-cycle computation
 				if (falling_edges[i] < rising_edges[i]) {
-					dt_duration_sum += falling_edges[i] -
-							   rising_edges[i - 1];
+					dt_duration_sum += falling_edges[i] - rising_edges[i - 1];
 				} else {
-					dt_duration_sum += rising_edges[i] -
-							   falling_edges[i - 1];
+					dt_duration_sum += rising_edges[i] - falling_edges[i - 1];
 				}
 				valid++;
 			}
@@ -145,22 +138,19 @@ void loop() {
 		if (valid > 0) {
 			// Compute period from average of rising and falling
 			// edge distance
-			float period =
-			    (falling_sum + rising_sum) / (2.0f * valid);
+			float period = (falling_sum + rising_sum) / (2.0f * valid);
 
 			// Compute duty cycle from this
 			// float dtc = (100.0f * dt_duration_sum / valid) /
 			// period;
-			float dtc = 100.0f * high_samples /
-				    (high_samples + low_samples);
+			float dtc = 100.0f * high_samples / (high_samples + low_samples);
 
 			// Compute frequency
 			float freq = 1.0e6f / period;
 
 			// Update stats
 			stat_duty_cycle_samples[stat_duty_cycle_ptr] = dtc;
-			stat_duty_cycle_ptr =
-			    (stat_duty_cycle_ptr + 1) % STAT_COUNT;
+			stat_duty_cycle_ptr = (stat_duty_cycle_ptr + 1) % STAT_COUNT;
 			stat_freq = freq;
 		}
 	}
@@ -187,8 +177,7 @@ void loop() {
 
 		oled.println();
 		oled.print(100.f * expected);
-		oled.setCursor(oled.getFontWidth() * 6,
-			       3 * oled.getFontHeight());
+		oled.setCursor(oled.getFontWidth() * 6, 3 * oled.getFontHeight());
 		oled.println("%");
 
 		oled.display();
