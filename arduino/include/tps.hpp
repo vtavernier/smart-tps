@@ -6,22 +6,19 @@
 #include <mbed/mbed.h>
 
 #include "mbed_INA219.h"
+#include "nrf_pwm_port.hpp"
 
 class Tps {
 	/// OLED screen instance
 	MicroOLED oled_;
 	/// Load injector shader pwm
-	//mbed::PwmOut pin_lts_;
+	mbed::PwmOut pin_lts_;
 	/// Load injector liner pwm
 	mbed::PwmOut pin_ltl_;
 	/// Load injector base
 	mbed::DigitalOut pin_ltb_;
-	/// Red LED
-	mbed::PwmOut pin_led_r_;
-	/// Green LED
-	mbed::PwmOut pin_led_g_;
-	/// Blue LED
-	mbed::PwmOut pin_led_b_;
+	/// RGB LED
+	NrfPwmPort pin_led_;
 	/// I2C instance for battery and INA219s
 	mbed::I2C i2c_;
 	/// INA219 instance for liner
