@@ -14,7 +14,7 @@ bool GuiState::operator==(const GuiState &rhs) const {
 	case GuiStateKind::Splash:
 		return memcmp(&data.splash, &rhs.data.splash, sizeof(data.splash)) == 0;
 	case GuiStateKind::Stats:
-		return memcmp(&data.splash, &rhs.data.splash, sizeof(data.splash)) == 0;
+		return memcmp(&data.stats, &rhs.data.stats, sizeof(data.stats)) == 0;
 	}
 
 	return false;
