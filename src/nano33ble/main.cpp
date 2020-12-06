@@ -1,8 +1,29 @@
+#include <Arduino.h>
+
 #include "tps.hpp"
 
-Tps tps;
+#include "nano33ble/load_sensor.hpp"
+#include "nano33ble/project_pins.h"
 
-void setup() { tps.begin(); }
+/// I2C instance (shared among some peripherals)
+mbed::I2C i2c(digitalPinToPinName(TPS_PIN_SDA), digitalPinToPinName(TPS_PIN_SCL));
+
+// Abstract components
+Gui gui;
+LoadSimulator load_simulator;
+RgbLed rgb_led;
+LoadSensor load_sensor(new_nano33ble_load_sensor_impl(i2c));
+
+Tps tps(gui, load_simulator, rgb_led, load_sensor);
+
+void setup() {
+	// Set I2C bus frequency
+	// TODO: Support 1MHz?
+	i2c.frequency(400000);
+
+	// Initialize components
+	tps.begin();
+}
 
 struct Sample {
 	unsigned long t;
@@ -33,12 +54,13 @@ void loop() {
 	float expected = ((millis() / 10000) % 4) / 4.f;
 
 	// Update load
-	tps.set_load(expected > 0.f, expected, 0.);
-	tps.set_led(0.0f, 0.0f, expected);
+	load_simulator.set_load(expected > 0.f, expected, 0.);
+	rgb_led.set_led(0.0f, 0.0f, expected);
 
 	// Update current average
-	auto val = tps.get_liner_current();
-	if (val != MAXFLOAT) {
+	auto raw_val = load_sensor.read(LoadType::Liner);
+	float val = raw_val / 10.f;
+	if (raw_val != INT16_MAX) {
 		auto &c = samples[samples_idx];
 		c.t = micros();
 		c.i = val;
@@ -54,7 +76,7 @@ void loop() {
 	}
 
 	// Add green to the LED
-	tps.set_led(0.0f, 1.0f, expected);
+	rgb_led.set_led(0.0f, 1.0f, expected);
 
 	unsigned long now = millis();
 
@@ -165,7 +187,6 @@ void loop() {
 		dtc /= STAT_COUNT;
 
 		// Update GUI
-		auto &gui(tps.get_gui());
 		gui.show_stats({.frequency = stat_freq,
 				.duty_cycle = dtc,
 				.expected_duty_cycle = 100.0f * expected,

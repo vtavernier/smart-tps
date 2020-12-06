@@ -138,7 +138,7 @@ public:
 	
 	void begin();
 
-	float get_current();
+	int16_t get_current();
 };
 
 #endif /* _MBED_INA219_H_ */

@@ -1,5 +1,5 @@
-#ifndef _NRF_PWM_PORT_HPP_
-#define _NRF_PWM_PORT_HPP_
+#ifndef _NANO33BLE_NRF_PWM_PORT_HPP_
+#define _NANO33BLE_NRF_PWM_PORT_HPP_
 
 #include <stdint.h>
 
@@ -85,4 +85,4 @@ class NrfPwmPort {
 	void write(float pin1, float pin2 = 0.0f, float pin3 = 0.0f, float pin4 = 0.0f);
 };
 
-#endif /* _NRF_PWM_PORT_HPP_ */
+#endif /* _NANO33BLE_NRF_PWM_PORT_HPP_ */

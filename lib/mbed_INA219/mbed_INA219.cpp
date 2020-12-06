@@ -38,12 +38,6 @@ int16_t mbed_INA219::read(char addr) {
 		return INT16_MAX;
 }
 
-float mbed_INA219::get_current() {
-	auto val = read(INA219_REG_CURRENT);
-
-	// Check for failed reads
-	if (val == INT16_MAX)
-		return MAXFLOAT;
-
-	return val / 10.f;
+int16_t mbed_INA219::get_current() {
+	return read(INA219_REG_CURRENT);
 }

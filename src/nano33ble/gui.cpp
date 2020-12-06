@@ -2,7 +2,7 @@
 #include <Fonts/Picopixel.h>
 
 #include "gui.hpp"
-#include "project_pins.h"
+#include "nano33ble/project_pins.h"
 
 extern const uint8_t PROGMEM splash1_data[];
 

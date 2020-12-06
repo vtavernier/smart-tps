@@ -1,5 +1,5 @@
-#ifndef _PROJECT_PINS_H_
-#define _PROJECT_PINS_H_
+#ifndef _NANO33BLE_PROJECT_PINS_H_
+#define _NANO33BLE_PROJECT_PINS_H_
 
 /// SPI SCK
 #define TPS_PIN_SCK 13
@@ -31,4 +31,4 @@
 /// INA219 for shader I2C address
 #define TPS_INA219_SHADER_ADDR 0x41
 
-#endif /* _PROJECT_PINS_H_ */
+#endif /* _NANO33BLE_PROJECT_PINS_H_ */
