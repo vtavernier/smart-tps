@@ -7,12 +7,18 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <ncurses.h>
+
 using namespace std;
 
 chrono::high_resolution_clock::time_point platform_start;
 
 int main(int argc, char *argv[]) {
 	LoadSimulatorState state;
+
+	// Initialize ncurses
+	initscr();
+	start_color();
 
 	// Initialize time start
 	platform_start = chrono::high_resolution_clock::now();
@@ -32,6 +38,9 @@ int main(int argc, char *argv[]) {
 		tps.poll();
 		usleep(2000);
 	}
+
+	// End curses mode
+	endwin();
 
 	return 0;
 }

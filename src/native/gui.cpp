@@ -1,36 +1,29 @@
 #include "gui.hpp"
 
-#include <iostream>
-
-using namespace std;
+#include <ncurses.h>
 
 #define PREFIX "StdoutGui: "
 
 class StdoutGuiImpl : public GuiImpl {
       public:
 	void begin() override {
-		cout << PREFIX "begin" << endl;
+		printw(PREFIX "begin\n");
 		show_splash({});
 	}
 
 	void clear() override {
-		// nothing to clear on stdout
+		::clear();
+		move(0, 0);
 	}
 
-	void display() override {
-		// nothing to display, already handled by state updates
-	}
+	void display() override { refresh(); }
 
-	void show_splash(const SplashData &data) override { cout << PREFIX "version: " TPS_VERSION << endl; }
+	void show_splash(const SplashData &data) override { printw(PREFIX "version: " TPS_VERSION "\n"); }
 
 	void show_stats(const StatsData &data) override {
-		cout << PREFIX << "frequency: " << data.frequency << "Hz"
-		     << " "
-		     << "duty_cycle: " << data.duty_cycle << "%"
-		     << " "
-		     << "expected_duty_cycle: " << data.expected_duty_cycle << "%"
-		     << " "
-		     << "screen_lastms: " << data.screen_lastms << "ms";
+		printw(PREFIX
+		       "frequency: %3.2fHz duty_cycle: %3.2f%% expected_duty_cycle: %3.2f%% screen_lastms: %lums\n",
+		       data.frequency, data.duty_cycle, data.expected_duty_cycle, data.screen_lastms);
 	}
 };
 
