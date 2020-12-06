@@ -2,7 +2,7 @@
 #define _TPS_H_
 
 #include <Arduino.h>
-#include <SFE_MicroOLED.h>
+#include <Adafruit_SSD1306.h>
 #include <mbed/mbed.h>
 
 #include "mbed_INA219.h"
@@ -10,7 +10,7 @@
 
 class Tps {
 	/// OLED screen instance
-	MicroOLED oled_;
+	Adafruit_SSD1306 oled_;
 	/// Load injector shader pwm
 	mbed::PwmOut pin_lts_;
 	/// Load injector liner pwm
@@ -71,7 +71,7 @@ class Tps {
 	/**
 	 * @brief Get a reference to the OLED screen driver
 	 */
-	inline MicroOLED &get_oled() { return oled_; }
+	inline Adafruit_SSD1306 &get_oled() { return oled_; }
 };
 
 #endif /* _TPS_H_ */

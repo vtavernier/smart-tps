@@ -1,0 +1,56 @@
+diff -ru --color "a/Adafruit SSD1306/Adafruit_SSD1306.cpp" "b/Adafruit SSD1306/Adafruit_SSD1306.cpp"
+--- "a/Adafruit SSD1306/Adafruit_SSD1306.cpp"	2020-11-15 21:00:10.000000000 +0100
++++ "b/Adafruit SSD1306/Adafruit_SSD1306.cpp"	2020-12-06 01:00:13.495787500 +0100
+@@ -467,13 +467,8 @@
+     return false;
+ 
+   clearDisplay();
+-  if (HEIGHT > 32) {
+-    drawBitmap((WIDTH - splash1_width) / 2, (HEIGHT - splash1_height) / 2,
+-               splash1_data, splash1_width, splash1_height, 1);
+-  } else {
+-    drawBitmap((WIDTH - splash2_width) / 2, (HEIGHT - splash2_height) / 2,
+-               splash2_data, splash2_width, splash2_height, 1);
+-  }
++  drawBitmap((WIDTH - splash1_width) / 2, (HEIGHT - splash1_height) / 2,
++             splash1_data, splash1_width, splash1_height, 1);
+ 
+   vccstate = vcs;
+ 
+@@ -551,7 +546,7 @@
+                                           SSD1306_COMSCANDEC};
+   ssd1306_commandList(init3, sizeof(init3));
+ 
+-  uint8_t comPins = 0x02;
++  uint8_t comPins = 0x12;
+   contrast = 0x8F;
+ 
+   if ((WIDTH == 128) && (HEIGHT == 32)) {
+@@ -929,9 +924,9 @@
+       SSD1306_PAGEADDR,
+       0,                      // Page start address
+       0xFF,                   // Page end (not really, but works here)
+-      SSD1306_COLUMNADDR, 0}; // Column start address
++      SSD1306_COLUMNADDR, 32}; // Column start address
+   ssd1306_commandList(dlist1, sizeof(dlist1));
+-  ssd1306_command1(WIDTH - 1); // Column end address
++  ssd1306_command1(WIDTH + 32 - 1); // Column end address
+ 
+ #if defined(ESP8266)
+   // ESP8266 needs a periodic yield() call to avoid watchdog reset.
+diff -ru --color "a/Adafruit SSD1306/scripts/make_splash.py" "b/Adafruit SSD1306/scripts/make_splash.py"
+--- "a/Adafruit SSD1306/scripts/make_splash.py"	2020-11-15 21:00:10.000000000 +0100
++++ "b/Adafruit SSD1306/scripts/make_splash.py"	2020-12-06 01:19:21.942657900 +0100
+@@ -17,10 +17,10 @@
+       if x == 0:
+         print("  ", end='')
+       if x % 8 == 0:
+-        print("B", end='')
++        print("0b", end='')
+ 
+       bit = '0'
+-      if x < image.width and image.getpixel((x,y)) != 0:
++      if x < image.width and image.getpixel((x,y))[0] != 0:
+         bit = '1'
+       print(bit, end='')
+ 
