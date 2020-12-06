@@ -41,6 +41,14 @@ diff -ru --color "a/Adafruit SSD1306/Adafruit_SSD1306.cpp" "b/Adafruit SSD1306/A
 diff -ru --color "a/Adafruit SSD1306/scripts/make_splash.py" "b/Adafruit SSD1306/scripts/make_splash.py"
 --- "a/Adafruit SSD1306/scripts/make_splash.py"	2020-11-15 21:00:10.000000000 +0100
 +++ "b/Adafruit SSD1306/scripts/make_splash.py"	2020-12-06 01:19:21.942657900 +0100
+@@ -10,6 +10,7 @@
+         "#define {id}_width  {w}\n"
+         "#define {id}_height {h}\n"
+         "\n"
++        "extern const uint8_t PROGMEM {id}_data[];\n"
+         "const uint8_t PROGMEM {id}_data[] = {{\n"
+         .format(id=id, w=image.width, h=image.height), end='')
+   for y in range(0, image.height):
 @@ -17,10 +17,10 @@
        if x == 0:
          print("  ", end='')

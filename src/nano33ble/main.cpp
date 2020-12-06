@@ -1,7 +1,5 @@
 #include "tps.hpp"
 
-#include <Fonts/Picopixel.h>
-
 Tps tps;
 
 void setup() { tps.begin(); }
@@ -159,36 +157,20 @@ void loop() {
 
 	if (now - screen_lastms > 250) {
 		screen_lastms = now;
-		auto &oled(tps.get_oled());
-		char buf[64];
 
-		oled.clearDisplay();
-		oled.setTextColor(WHITE);
-		oled.setFont();
-		oled.setCursor(0, 0);
-
-		sprintf(buf, "%3.2fHz", stat_freq);
-		oled.println(buf);
-
+		// Compute duty cycle
 		float dtc = 0.0f;
 		for (size_t i = 0; i < STAT_COUNT; ++i)
 			dtc += stat_duty_cycle_samples[i];
 		dtc /= STAT_COUNT;
 
-		sprintf(buf, "%3.2f%%", dtc);
-		oled.println(buf);
+		// Update GUI
+		auto &gui(tps.get_gui());
+		gui.show_stats({.frequency = stat_freq,
+				.duty_cycle = dtc,
+				.expected_duty_cycle = 100.0f * expected,
+				.screen_lastms = screen_lastms});
 
-		oled.println();
-
-		sprintf(buf, "%3.2f%%", 100.0f * expected);
-		oled.println(buf);
-
-		// Draw status bar
-		oled.drawFastHLine(0, 48 - 8, 64, WHITE);
-		oled.setCursor(0, 48 - 7);
-		oled.setFont(&Picopixel);
-		oled.println(screen_lastms);
-
-		oled.display();
+		gui.display();
 	}
 }

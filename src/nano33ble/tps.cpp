@@ -5,8 +5,7 @@
 #include "project_pins.h"
 
 Tps::Tps()
-    : oled_(64, 48, &SPI, TPS_PIN_OLED_DC, TPS_PIN_OLED_RESET, TPS_PIN_OLED_CS),
-      pin_lts_(digitalPinToPinName(TPS_PIN_LTS)), pin_ltl_(digitalPinToPinName(TPS_PIN_LTL)),
+    : gui_(), pin_lts_(digitalPinToPinName(TPS_PIN_LTS)), pin_ltl_(digitalPinToPinName(TPS_PIN_LTL)),
       pin_ltb_(digitalPinToPinName(TPS_PIN_LTB)),
       pin_led_(digitalPinToPinName(LEDR), digitalPinToPinName(LEDG), digitalPinToPinName(LEDB)),
       i2c_(digitalPinToPinName(TPS_PIN_SDA), digitalPinToPinName(TPS_PIN_SCL)),
@@ -33,9 +32,8 @@ void Tps::begin() {
 	ina219_liner_.begin();
 	ina219_shader_.begin();
 
-	// Clear display at boot
-	oled_.begin(SSD1306_SWITCHCAPVCC, 0, true, true);
-	oled_.display();
+	// Initialize GUI
+	gui_.begin();
 }
 
 void Tps::poll() {

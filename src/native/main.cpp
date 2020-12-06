@@ -1,8 +1,13 @@
 #include <iostream>
 
+#include "gui.hpp"
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
-	cout << "smart-tps native tester" << endl;
+	// Initialize GUI
+	Gui gui;
+	gui.begin();
+
 	return 0;
 }

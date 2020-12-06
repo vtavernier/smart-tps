@@ -2,15 +2,15 @@
 #define _TPS_H_
 
 #include <Arduino.h>
-#include <Adafruit_SSD1306.h>
 #include <mbed/mbed.h>
 
+#include "gui.hpp"
 #include "mbed_INA219.h"
 #include "nrf_pwm_port.hpp"
 
 class Tps {
-	/// OLED screen instance
-	Adafruit_SSD1306 oled_;
+	/// GUI instance
+	Gui gui_;
 	/// Load injector shader pwm
 	mbed::PwmOut pin_lts_;
 	/// Load injector liner pwm
@@ -69,9 +69,9 @@ class Tps {
 	float get_shader_current();
 
 	/**
-	 * @brief Get a reference to the OLED screen driver
+	 * @brief Get a reference to the GUI instance
 	 */
-	inline Adafruit_SSD1306 &get_oled() { return oled_; }
+	inline Gui &get_gui() { return gui_; }
 };
 
 #endif /* _TPS_H_ */
