@@ -1,0 +1,4 @@
+#define battery_medium_width 7
+#define battery_medium_height 5
+static unsigned char battery_medium_bits[] = {
+   0x40, 0x3e, 0x32, 0x3e, 0x40 };
