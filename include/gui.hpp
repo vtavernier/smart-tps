@@ -11,7 +11,7 @@ struct StatsData {
 	float frequency;
 	float duty_cycle;
 	float expected_duty_cycle;
-	unsigned long screen_lastms;
+	unsigned long screen_lasts;
 };
 
 struct GuiState {

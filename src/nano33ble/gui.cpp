@@ -46,7 +46,7 @@ class OledGuiImpl : public GuiImpl {
 		oled_.drawFastHLine(0, oled_.height() - 8, oled_.width(), WHITE);
 		oled_.setCursor(0, oled_.height() - 7);
 		oled_.setFont(&Picopixel);
-		oled_.println(data.screen_lastms);
+		oled_.println(data.screen_lasts);
 	}
 };
 

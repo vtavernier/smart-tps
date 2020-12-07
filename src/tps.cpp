@@ -187,7 +187,7 @@ void Tps::poll() {
 		gui_.show_stats({.frequency = stat_freq,
 				 .duty_cycle = dtc,
 				 .expected_duty_cycle = 100.0f * expected,
-				 .screen_lastms = screen_lastms});
+				 .screen_lasts = screen_lastms_ / 1000});
 
 		gui_.display();
 	}

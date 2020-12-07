@@ -22,8 +22,8 @@ class StdoutGuiImpl : public GuiImpl {
 
 	void show_stats(const StatsData &data) override {
 		printw(PREFIX
-		       "frequency: %3.2fHz duty_cycle: %3.2f%% expected_duty_cycle: %3.2f%% screen_lastms: %lums\n",
-		       data.frequency, data.duty_cycle, data.expected_duty_cycle, data.screen_lastms);
+		       "frequency: %3.2fHz duty_cycle: %3.2f%% expected_duty_cycle: %3.2f%% screen_lasts: %lus\n",
+		       data.frequency, data.duty_cycle, data.expected_duty_cycle, data.screen_lasts);
 	}
 };
 
