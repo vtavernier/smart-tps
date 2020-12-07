@@ -1,6 +1,8 @@
 #ifndef _LOAD_SIMULATOR_HPP_
 #define _LOAD_SIMULATOR_HPP_
 
+#include "load_type.hpp"
+
 class LoadSimulatorImpl {
       public:
 	virtual ~LoadSimulatorImpl() = default;
@@ -32,11 +34,10 @@ class LoadSimulator {
 	/**
 	 * @brief Set the load status
 	 *
-	 * @param base true if the base should be on
-	 * @param liner pulse width of the liner
-	 * @param shader pulse width of the shader
+	 * @param type which load type to simulate
+	 * @param value target duty cycle
 	 */
-	void set_load(bool base, float liner, float shader);
+	void set_load(LoadType type, float value);
 };
 
 #endif /* _LOAD_SIMULATOR_HPP_ */

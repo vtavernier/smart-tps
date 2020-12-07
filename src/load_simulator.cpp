@@ -11,4 +11,15 @@ LoadSimulator::~LoadSimulator() {
 
 void LoadSimulator::begin() { impl_->begin(); }
 
-void LoadSimulator::set_load(bool base, float liner, float shader) { impl_->set_load(base, liner, shader); }
+void LoadSimulator::set_load(LoadType type, float value) {
+	bool base = value > 0.f;
+
+	switch (type) {
+	case LoadType::Liner:
+		impl_->set_load(base, value, 0.f);
+		break;
+	case LoadType::Shader:
+		impl_->set_load(base, 0.f, value);
+		break;
+	}
+}

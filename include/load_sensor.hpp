@@ -3,10 +3,7 @@
 
 #include <stdint.h>
 
-enum class LoadType {
-	Liner,
-	Shader,
-};
+#include "load_type.hpp"
 
 class LoadSensorImpl {
       public:

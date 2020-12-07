@@ -31,7 +31,7 @@ void Tps::poll() {
 	float expected = ((Platform.millis() / 5000) % 4) / 4.f;
 
 	// Update load
-	load_simulator_.set_load(expected > 0.f, expected, 0.);
+	load_simulator_.set_load(LoadType::Liner, expected);
 	rgb_led_.set_led(0.0f, 0.0f, expected);
 
 	// Update current average
