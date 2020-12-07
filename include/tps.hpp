@@ -5,6 +5,7 @@
 #include "load_sensor.hpp"
 #include "load_simulator.hpp"
 #include "rgb_led.hpp"
+#include "stats.hpp"
 
 class Tps {
 	/// GUI instance
@@ -15,6 +16,13 @@ class Tps {
 	RgbLed &rgb_led_;
 	/// Load sensor
 	LoadSensor &load_sensor_;
+	/// Stats accumulator
+	Stats &stats_;
+
+	// Internal state
+	unsigned long screen_lastms_;
+	float stat_freq_;
+	float stat_duty_cycle_;
 
       public:
 	/**
@@ -24,8 +32,9 @@ class Tps {
 	 * @param load_simulator Load simulator instance to use
 	 * @param rgb_led RGB LED instance to use
 	 * @param load_sensor Load sensor instance to use
+	 * @param stats Statistics accumulator to use
 	 */
-	Tps(Gui &gui, LoadSimulator &load_simulator, RgbLed &rgb_led, LoadSensor &load_sensor);
+	Tps(Gui &gui, LoadSimulator &load_simulator, RgbLed &rgb_led, LoadSensor &load_sensor, Stats &stats);
 
 	/// Initialize the peripherals, to be called in setup
 	void begin();

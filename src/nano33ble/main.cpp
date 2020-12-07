@@ -13,8 +13,9 @@ Gui gui;
 LoadSimulator load_simulator;
 RgbLed rgb_led;
 LoadSensor load_sensor(new_nano33ble_load_sensor_impl(i2c));
+Stats stats;
 
-Tps tps(gui, load_simulator, rgb_led, load_sensor);
+Tps tps(gui, load_simulator, rgb_led, load_sensor, stats);
 
 void setup() {
 	// Set I2C bus frequency

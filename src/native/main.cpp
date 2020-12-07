@@ -29,8 +29,11 @@ int main(int argc, char *argv[]) {
 	RgbLed led;
 	LoadSensor load_sensor(new_native_load_sensor_impl(state));
 
+	// Stats accumulator
+	Stats stats;
+
 	// Start program
-	Tps tps(gui, load_simulator, led, load_sensor);
+	Tps tps(gui, load_simulator, led, load_sensor, stats);
 
 	tps.begin();
 
