@@ -13,6 +13,7 @@ struct SplashData {};
 struct StatsData {
 	float frequency;
 	float duty_cycle;
+	LoadType type;
 	bool expected_enabled;
 	LoadType expected_load_type;
 	float expected_duty_cycle;

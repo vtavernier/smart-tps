@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/// Threshold value for detecting current, in 10ths of mA
+const int16_t CurrentThreshold = 50; // 5 mA
+
 struct Sample {
 	unsigned long t;
 	uint16_t i;

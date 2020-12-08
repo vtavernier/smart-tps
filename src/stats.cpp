@@ -21,7 +21,7 @@ SampleStatus Stats::add_sample(int16_t raw_current_val) {
 	if (valid_samples < SAMPLE_COUNT)
 		valid_samples++;
 
-	if (abs(raw_current_val) < 50) {
+	if (abs(raw_current_val) < CurrentThreshold) {
 		// Zero sample
 		result = SampleStatus::Zero;
 

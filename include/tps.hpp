@@ -23,14 +23,33 @@ class Tps {
 
 	// Internal state
 	TpsState state_;
+	unsigned long inactivity_start_;
 
+	// Load simulator state
 	bool simulate_load_;
 	LoadType last_load_simulator_type_;
 	float last_load_simulator_expected_;
 
+	// Sensing state
+	unsigned long last_sense_main_;
+	unsigned long last_sense_alternate_;
+
+	/// Last screen update timestamp
 	unsigned long screen_lastms_;
+	/// Remembered frequency
 	float stat_freq_;
+	/// Remembered duty cycle
 	float stat_duty_cycle_;
+	/// Remembered measure type
+	LoadType stat_type_;
+
+	bool try_switch_to_measure(LoadType type);
+
+	void display_stats();
+
+	void poll_inactive();
+	void poll_sense(LoadType type);
+	void poll_measure(LoadType type);
 
       public:
 	/**

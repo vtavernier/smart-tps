@@ -3,8 +3,9 @@
 #include "gui.hpp"
 
 bool StatsData::operator==(const StatsData &rhs) const {
-	return frequency == rhs.frequency && duty_cycle == rhs.duty_cycle && expected_enabled == rhs.expected_enabled &&
-	       screen_lasts == rhs.screen_lasts && current_state == rhs.current_state &&
+	return frequency == rhs.frequency && duty_cycle == rhs.duty_cycle && type == rhs.type &&
+	       expected_enabled == rhs.expected_enabled && screen_lasts == rhs.screen_lasts &&
+	       current_state == rhs.current_state &&
 	       (expected_enabled
 		    ? (expected_load_type == rhs.expected_load_type && expected_duty_cycle == rhs.expected_duty_cycle)
 		    : true);

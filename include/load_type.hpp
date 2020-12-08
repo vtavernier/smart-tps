@@ -6,4 +6,6 @@ enum class LoadType {
 	Shader,
 };
 
+LoadType alternate(LoadType type);
+
 #endif /* _LOAD_TYPE_HPP_ */
