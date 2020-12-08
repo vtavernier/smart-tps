@@ -14,7 +14,7 @@ class StdoutRgbLedImpl : public RgbLedImpl {
 
 	void set_led(float r, float g, float b) override {
 		init_color(20, static_cast<int>(1000 * r), static_cast<int>(1000 * g), static_cast<int>(1000 * b));
-		move(1, 0);
+		move(2, 0);
 		printw(PREFIX);
 		attron(COLOR_PAIR(20));
 		printw("  ");

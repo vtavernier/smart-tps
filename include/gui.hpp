@@ -1,6 +1,9 @@
 #ifndef _GUI_HPP_
 #define _GUI_HPP_
 
+#include "load_type.hpp"
+#include "tps_state.hpp"
+
 enum class GuiStateKind {
 	Splash,
 	Stats,
@@ -10,8 +13,13 @@ struct SplashData {};
 struct StatsData {
 	float frequency;
 	float duty_cycle;
+	bool expected_enabled;
+	LoadType expected_load_type;
 	float expected_duty_cycle;
 	unsigned long screen_lasts;
+	TpsState current_state;
+
+	bool operator==(const StatsData &rhs) const;
 };
 
 struct GuiState {

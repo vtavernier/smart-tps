@@ -39,14 +39,20 @@ class OledGuiImpl : public GuiImpl {
 
 		oled_.println();
 
-		sprintf(buf_, "%3.2f%%", data.expected_duty_cycle);
-		oled_.println(buf_);
+		if (data.expected_enabled) {
+			sprintf(buf_, "%s: %3.2f%%", data.expected_load_type == LoadType::Liner ? "L" : "S",
+				data.expected_duty_cycle);
+			oled_.println(buf_);
+		}
 
 		// Draw status bar
 		oled_.drawFastHLine(0, oled_.height() - 8, oled_.width(), WHITE);
 		oled_.setCursor(0, oled_.height() - 7);
 		oled_.setFont(&Picopixel);
-		oled_.println(data.screen_lasts);
+		oled_.print(stateToString(data.current_state));
+		oled_.print(" ");
+		oled_.print(data.screen_lasts);
+		oled_.println("s");
 	}
 };
 

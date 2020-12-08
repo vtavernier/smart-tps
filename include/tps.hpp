@@ -7,6 +7,8 @@
 #include "rgb_led.hpp"
 #include "stats.hpp"
 
+#include "tps_state.hpp"
+
 class Tps {
 	/// GUI instance
 	Gui &gui_;
@@ -20,6 +22,12 @@ class Tps {
 	Stats &stats_;
 
 	// Internal state
+	TpsState state_;
+
+	bool simulate_load_;
+	LoadType last_load_simulator_type_;
+	float last_load_simulator_expected_;
+
 	unsigned long screen_lastms_;
 	float stat_freq_;
 	float stat_duty_cycle_;
