@@ -5,6 +5,8 @@ using namespace std::chrono;
 
 extern high_resolution_clock::time_point platform_start;
 
+PlatformClass::PlatformClass() {}
+
 unsigned long PlatformClass::millis() {
 	auto now = high_resolution_clock::now();
 	return duration_cast<milliseconds>(now - platform_start).count();

@@ -3,6 +3,8 @@
 
 class PlatformClass {
       public:
+	PlatformClass();
+
 	unsigned long millis();
 	unsigned long micros();
 };
