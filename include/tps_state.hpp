@@ -46,4 +46,9 @@ enum class TpsState {
  */
 const char *stateToString(TpsState state);
 
+/**
+ * @brief Return the short string representation of state
+ */
+const char *stateToShortString(TpsState state);
+
 #endif /* _TPS_STATE_HPP_ */

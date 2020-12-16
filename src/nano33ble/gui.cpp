@@ -52,13 +52,13 @@ class OledGuiImpl : public GuiImpl {
 		oled_.drawFastHLine(0, oled_.height() - 8, oled_.width(), WHITE);
 		oled_.setCursor(0, oled_.height() - 7);
 		oled_.setFont(&Picopixel);
-		oled_.print(stateToString(data.current_state));
+		oled_.print(stateToShortString(data.current_state));
 		oled_.print(" ");
 		oled_.print(data.screen_lasts);
 		oled_.println("s");
 
 		// Right part of status bar: measure type
-		oled_.setCursor(oled_.width() - 6, oled_.height() - 7);
+		oled_.setCursor(oled_.width() - 6, oled_.height() - 4);
 		oled_.print(data.type == LoadType::Liner ? "L" : "S");
 	}
 };
