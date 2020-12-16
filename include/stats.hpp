@@ -8,7 +8,7 @@
 const int16_t CurrentThreshold = 1250; // 125 mA
 
 /// Threshold for classifying low and high values, in 10ths of mA
-const int16_t CurrentStepThreshold = 1000; // 100 mA
+const int16_t CurrentStepThreshold = 500; // 50 mA
 
 struct Sample {
 	unsigned long t;
@@ -31,7 +31,6 @@ class Stats {
 	size_t samples_idx;
 	size_t zero_samples;
 
-	unsigned long falling_edges[SAMPLE_COUNT];
 	unsigned long rising_edges[SAMPLE_COUNT];
 
 	float stat_freq;
