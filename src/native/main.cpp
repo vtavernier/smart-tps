@@ -27,7 +27,8 @@ int main(int argc, char *argv[]) {
 	Gui gui;
 	LoadSimulator load_simulator(new_native_load_simulator_impl(state));
 	RgbLed led;
-	LoadSensor load_sensor(new_native_load_sensor_impl(state));
+	LoadSensor load_sensor(argc > 1 ? new_native_load_sensor_impl(std::string{argv[1]})
+					: new_native_load_sensor_impl(state));
 
 	// Stats accumulator
 	Stats stats;
