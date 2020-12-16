@@ -13,7 +13,7 @@ Tps::Tps(Gui &gui, LoadSimulator &load_simulator, RgbLed &rgb_led, LoadSensor &l
 bool Tps::try_switch_to_measure(LoadType type) {
 	auto raw_val = load_sensor_.read(type);
 
-	if (raw_val != INT16_MAX && abs(raw_val) > CurrentThreshold) {
+	if (raw_val != INT16_MAX && raw_val > CurrentThreshold) {
 		// Reset timer
 		inactivity_start_ = Platform.millis();
 

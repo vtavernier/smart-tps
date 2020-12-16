@@ -5,7 +5,10 @@
 #include <stdint.h>
 
 /// Threshold value for detecting current, in 10ths of mA
-const int16_t CurrentThreshold = 50; // 5 mA
+const int16_t CurrentThreshold = 1250; // 125 mA
+
+/// Threshold for classifying low and high values, in 10ths of mA
+const int16_t CurrentStepThreshold = 1000; // 100 mA
 
 struct Sample {
 	unsigned long t;

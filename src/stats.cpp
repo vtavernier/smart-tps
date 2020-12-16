@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "platform.hpp"
 #include "stats.hpp"
 
@@ -21,7 +19,7 @@ SampleStatus Stats::add_sample(int16_t raw_current_val) {
 	if (valid_samples < SAMPLE_COUNT)
 		valid_samples++;
 
-	if (abs(raw_current_val) < CurrentThreshold) {
+	if (raw_current_val < CurrentThreshold) {
 		// Zero sample
 		result = SampleStatus::Zero;
 
@@ -59,41 +57,22 @@ bool Stats::update_stats() {
 	if (ok_samples == 0)
 		return false;
 
-	// First pass, determine max and min
-	int16_t max = INT16_MIN, min = INT16_MAX;
-	for (size_t i = 0; i < ok_samples; ++i) {
-		auto &s{samples[(samples_idx + i) % SAMPLE_COUNT]};
-
-		if (s.i > max)
-			max = s.i;
-		if (s.i < min)
-			min = s.i;
-	}
-
-	// Check if at least some current was detected, if not skip computation
-	if (max < 50) // 5mA
-		return false;
-
-	// Middle current value
-	// TODO: Is this the right value to use for this
-	int16_t mid = (static_cast<int32_t>(min) + static_cast<int32_t>(max)) / 2;
-
-	// Second pass, determine edges
-	bool high = samples[samples_idx].i > mid;
+	// First pass, determine edges
+	bool high = samples[samples_idx].i > CurrentStepThreshold;
 	size_t falling_ptr = 0;
 	size_t rising_ptr = 0;
-	unsigned long last_t = samples[0].t;
+	unsigned long last_t = samples[samples_idx].t;
 	uint32_t low_samples = 0;
 	uint32_t high_samples = 0;
 
 	for (size_t i = 0; i < ok_samples; ++i) {
 		auto &s{samples[(samples_idx + i) % SAMPLE_COUNT]};
 
-		if (high && s.i < mid) {
+		if (high && s.i < CurrentStepThreshold) {
 			// Falling edge
 			high = false;
 			falling_edges[falling_ptr++] = (last_t + s.t) / 2;
-		} else if (!high && s.i > mid) {
+		} else if (!high && s.i > CurrentStepThreshold) {
 			// Rising edge
 			high = true;
 			rising_edges[rising_ptr++] = (last_t + s.t) / 2;
@@ -111,7 +90,7 @@ bool Stats::update_stats() {
 		last_t = s.t;
 	}
 
-	// Third pass: compute period and duty cycle
+	// Second pass: compute period and duty cycle
 	size_t max_ptr = falling_ptr < rising_ptr ? falling_ptr : rising_ptr;
 
 	uint32_t falling_sum = 0, rising_sum = 0;
