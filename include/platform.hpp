@@ -1,6 +1,8 @@
 #ifndef _PLATFORM_HPP_
 #define _PLATFORM_HPP_
 
+#include <stdint.h>
+
 class PlatformClass {
       public:
 	PlatformClass();
@@ -11,6 +13,8 @@ class PlatformClass {
 	unsigned long micros();
 
 	void halt();
+
+	void print_sensor_measurement(int16_t raw_val);
 };
 
 extern PlatformClass Platform;

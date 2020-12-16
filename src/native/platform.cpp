@@ -24,4 +24,8 @@ unsigned long PlatformClass::micros() {
 
 void PlatformClass::halt() { exit(0); }
 
+void PlatformClass::print_sensor_measurement(int16_t val) {
+	// TODO: Implement native output for sensor measurements
+}
+
 PlatformClass Platform;

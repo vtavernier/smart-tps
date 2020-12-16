@@ -21,12 +21,20 @@ class LoadSensorImpl {
 
 class LoadSensor {
 	LoadSensorImpl *impl_;
+	bool dump_measurements_;
 
       public:
 	LoadSensor(LoadSensorImpl *impl);
 	~LoadSensor();
 
 	void begin();
+
+	/**
+	 * @brief Enable dumping measurements to the system's output
+	 *
+	 * @param value true to enable dumping measurements
+	 */
+	void set_dump_measurements(bool value);
 
 	/**
 	 * Measure the current load in 10ths of mA

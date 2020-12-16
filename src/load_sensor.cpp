@@ -1,6 +1,8 @@
 #include "load_sensor.hpp"
 
-LoadSensor::LoadSensor(LoadSensorImpl *impl) : impl_(impl) {}
+#include "platform.hpp"
+
+LoadSensor::LoadSensor(LoadSensorImpl *impl) : impl_(impl), dump_measurements_(false) {}
 
 LoadSensor::~LoadSensor() {
 	delete impl_;
@@ -9,4 +11,14 @@ LoadSensor::~LoadSensor() {
 
 void LoadSensor::begin() { impl_->begin(); }
 
-int16_t LoadSensor::read(LoadType type) { return impl_->read(type); }
+void LoadSensor::set_dump_measurements(bool value) { dump_measurements_ = value; }
+
+int16_t LoadSensor::read(LoadType type) {
+	auto val = impl_->read(type);
+
+	if (dump_measurements_) {
+		Platform.print_sensor_measurement(val);
+	}
+
+	return val;
+}

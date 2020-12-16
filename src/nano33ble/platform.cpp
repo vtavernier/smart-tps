@@ -27,4 +27,10 @@ void PlatformClass::halt() {
 	delay(100);
 }
 
+void PlatformClass::print_sensor_measurement(int16_t raw_val) {
+	Serial.print(micros());
+	Serial.print(",");
+	Serial.println(raw_val);
+}
+
 PlatformClass Platform;
