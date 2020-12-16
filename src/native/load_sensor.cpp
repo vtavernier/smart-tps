@@ -42,9 +42,9 @@ class NativeLoadSensorImpl : public LoadSensorImpl {
 
 		switch (type) {
 		case LoadType::Liner:
-			return (phase < state_.ltl_value ? 1. : 0.) * 7500 + (state_.ltb_value ? 3500. : 0.);
+			return (phase < state_.ltl_value ? 1. : 0.) * 7500;
 		case LoadType::Shader:
-			return (phase < state_.lts_value ? 1. : 0.) * 7500 + (state_.ltb_value ? 3500. : 0.);
+			return (phase < state_.lts_value ? 1. : 0.) * 7500;
 		}
 
 		return INT16_MAX;
