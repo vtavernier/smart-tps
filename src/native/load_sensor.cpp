@@ -7,6 +7,21 @@
 #include <sstream>
 #include <vector>
 
+#include <unistd.h>
+
+void native_ina219_limit() {
+	static unsigned long last_measure = 0;
+
+	auto now = Platform.micros();
+	if (now > last_measure) {
+		if (last_measure + 600 > now) {
+			usleep(last_measure + 600 - now);
+		}
+	}
+
+	last_measure = Platform.micros();
+}
+
 class NativeLoadSensorImpl : public LoadSensorImpl {
 	const LoadSimulatorState &state_;
 
@@ -16,6 +31,9 @@ class NativeLoadSensorImpl : public LoadSensorImpl {
 	void begin() override {}
 
 	int16_t read(LoadType type) override {
+		// Only allow measure if it's been more than 600µs
+		native_ina219_limit();
+
 		// PWM signal phase
 		auto phase = Platform.micros() % state_.period_us / (float)state_.period_us;
 
@@ -73,6 +91,9 @@ class ValuesLoadSensorImpl : public LoadSensorImpl {
 	void begin() override {}
 
 	int16_t read(LoadType type) override {
+		// Only allow measure if it's been more than 600µs
+		native_ina219_limit();
+
 		// Locate the latest sample
 		auto current_t = Platform.micros() % max_t_;
 		for (current_idx_ = current_t < samples_[current_idx_].t ? 0 : current_idx_;
