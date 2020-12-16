@@ -156,8 +156,8 @@ void Tps::poll_measure(LoadType type) {
 
 		// Update statistics
 		if (stats_.update_stats()) {
-			stat_freq_ = stats_.get_freq();
-			stat_duty_cycle_ = stats_.get_duty_cycle();
+			stat_freq_ = (stat_freq_ + stats_.get_freq()) / 2.f;
+			stat_duty_cycle_ = (stat_duty_cycle_ + stats_.get_duty_cycle()) / 2.f;
 			stat_type_ = type;
 		}
 
