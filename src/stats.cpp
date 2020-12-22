@@ -1,22 +1,21 @@
 #include "stats.hpp"
 #include "platform.hpp"
 
-template <typename T> void insertionsort(T *a, size_t n) {
-	for (size_t i = 1; i < n; i++) {
-		T e = a[i];
-		int j = i;
-		while (--j >= 0 && a[j] > e) {
-			a[j + 1] = a[j];
-		}
-		a[j + 1] = e;
-	}
-}
+#include <string.h>
 
-Stats::Stats() : valid_samples{0}, samples_idx{0}, zero_samples{0}, stat_freq{0.f}, stat_duty_cycle{0.f} {}
+Stats::Stats()
+    : hist_{0}, last_rising_edge_t_{0}, currently_high_{false}, low_samples_{0}, high_samples_{0},
+      uncommitted_low_samples_{0}, stat_freq_{0}, stat_duty_cycle_{0} {}
 
 void Stats::reset() {
-	valid_samples = 0;
-	zero_samples = 0;
+	memset(&hist_, 0, sizeof(hist_));
+	last_rising_edge_t_ = 0;
+	currently_high_ = false;
+	low_samples_ = 0;
+	high_samples_ = 0;
+	uncommitted_low_samples_ = 0;
+	stat_freq_ = 0.f;
+	stat_duty_cycle_ = 0.f;
 }
 
 SampleStatus Stats::add_sample(int16_t raw_current_val) {
@@ -24,121 +23,94 @@ SampleStatus Stats::add_sample(int16_t raw_current_val) {
 	if (raw_current_val == INT16_MAX)
 		return SampleStatus::Invalid;
 
-	auto result = SampleStatus::Valid;
-
-	// New valid sample
-	if (valid_samples < SAMPLE_COUNT)
-		valid_samples++;
+	// Classify sample type
+	auto result = SampleStatus::High;
 
 	if (raw_current_val < CurrentThreshold) {
-		// Zero sample
-		result = SampleStatus::Zero;
+		// Low sample
+		result = SampleStatus::Low;
 
-		if (zero_samples < SAMPLE_COUNT)
-			zero_samples++;
+		// We are now at a low step
+		currently_high_ = false;
+
+		// Add it to uncommitted_low_samples_
+		uncommitted_low_samples_++;
 	} else {
-		// Non-zero sample
-		if (zero_samples > 10) {
-			// There was a big chunk of 0 samples, restart buffer
-			valid_samples = 1;
-		} // else, there was only a few samples, so keep them, they're just noise
+		// Detect rising edge?
+		if (!currently_high_) {
+			// We are now at the high step
+			currently_high_ = true;
 
-		zero_samples = 0;
+			auto now = Platform.micros();
+
+			// Commit low samples
+			if (now < last_rising_edge_t_ || (now - last_rising_edge_t_) > 500000) {
+				// Too long since the last rising edge, reset
+				low_samples_ = 0;
+				high_samples_ = 0;
+
+				// Also reset the histogram
+				memset(&hist_, 0, sizeof(hist_));
+				last_rising_edge_t_ = 0;
+			} else {
+				// Just a few samples, add them to the count
+				low_samples_ += uncommitted_low_samples_;
+			}
+
+			uncommitted_low_samples_ = 0;
+
+			// Record last rising edge as now
+			if (last_rising_edge_t_ != 0 && now > last_rising_edge_t_) {
+				// Frequency of the last period in .1 Hz
+				auto f = 10000000 / static_cast<int32_t>(now - last_rising_edge_t_);
+
+				// Idx in histogram
+				auto idx = (f - HistogramFrequencyLow) / HistogramFrequencyStep;
+
+				// If the idx is in range of the samples we're interested in
+				if (idx >= 0 && idx < HistogramFrequencyBinCount) {
+					hist_.counts[idx]++;
+					hist_.total++;
+				}
+			}
+
+			last_rising_edge_t_ = now;
+		}
+
+		// High sample
+		high_samples_++;
 	}
-
-	// Add sample to buffer
-	samples[samples_idx].i = raw_current_val;
-	samples[samples_idx].t = Platform.micros();
-
-	// Increment ring buffer index
-	samples_idx = (samples_idx + 1) % SAMPLE_COUNT;
 
 	return result;
 }
 
 bool Stats::update_stats() {
 	// Reset statistics
-	stat_freq = 0.f;
-	stat_duty_cycle = 0.f;
+	stat_freq_ = 0.f;
+	stat_duty_cycle_ = 0.f;
 
-	// How many samples can we use
-	auto ok_samples = valid_samples - zero_samples;
-
-	// Skip stat computation if no valid samples in buffer
-	if (ok_samples == 0)
+	// Check we can compute duty cycle
+	if (low_samples_ + high_samples_ < MinSampleCount)
 		return false;
 
-	// First pass, determine edges
-	bool high = samples[samples_idx].i > CurrentStepThreshold;
-	size_t rising_ptr = 0;
-
-	unsigned long last_t = samples[samples_idx].t;
-	uint32_t low_samples = 0;
-	uint32_t high_samples = 0;
-
-	unsigned long last_rising_edge = 0;
-
-	for (size_t i = 0; i < ok_samples; ++i) {
-		auto &s{samples[(samples_idx + i) % SAMPLE_COUNT]};
-
-		if (s.t < last_t)
-			continue;
-
-		auto tdiff = s.t - last_t;
-
-		if (high && s.i < CurrentStepThreshold) {
-			// Falling edge
-			high = false;
-
-			high_samples += tdiff / 2;
-			low_samples += tdiff / 2;
-		} else if (!high && s.i > CurrentStepThreshold) {
-			// Rising edge
-			high = true;
-
-			// If we have already seen a rising edge
-			if (last_rising_edge != 0) {
-				// Add the duration from last to current rising edge to the array
-				rising_edges[rising_ptr++] = (last_t + s.t) / 2 - last_rising_edge;
-			}
-
-			// Update the current rising edge time
-			last_rising_edge = (last_t + s.t) / 2;
-
-			high_samples += tdiff / 2;
-			low_samples += tdiff / 2;
-		} else {
-			// Add duration of the current sample to the target
-			if (high) {
-				high_samples += tdiff;
-			} else {
-				low_samples += tdiff;
-			}
-		}
-
-		last_t = s.t;
-	}
-
-	if (rising_ptr < SAMPLE_COUNT / 8)
+	// Check we can compute median frequency
+	if (hist_.total < MinSampleCount)
 		return false;
 
-	// Sort samples
-	insertionsort(rising_edges, rising_ptr);
+	// Compute duty cycle
+	stat_duty_cycle_ = high_samples_ / static_cast<float>(high_samples_ + low_samples_) * 100.f;
 
-	// Compute mean, skip lower and higher 25%
-	int32_t period_mean_sum = 0;
-	for (size_t i = rising_ptr / 4; i < (rising_ptr - rising_ptr / 4); ++i) {
-		period_mean_sum += rising_edges[i];
-	}
+	// Compute median frequency
+	uint16_t tgt, i;
+	for (tgt = hist_.total / 2, i = 0; tgt > 0 && hist_.counts[i] <= tgt; tgt -= hist_.counts[i], ++i)
+		;
 
-	// Compute period from average
-	float period = static_cast<float>(period_mean_sum) / static_cast<float>(rising_ptr / 2);
-
-	// Compute duty cycle from this
-	stat_duty_cycle = 100.0f * high_samples / (high_samples + low_samples);
-
-	// Compute frequency
-	stat_freq = 1.0e6f / period;
+	stat_freq_ =
+	    (HistogramFrequencyLow + (i * HistogramFrequencyStep) +
+	     (hist_.counts[i] == 0
+		  ? 0
+		  : (HistogramFrequencyStep * ((hist_.total / 2) - tgt) / static_cast<float>(hist_.counts[i])))) /
+	    10.f;
 
 	return true;
 }

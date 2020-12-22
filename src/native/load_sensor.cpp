@@ -9,6 +9,11 @@
 
 #include <unistd.h>
 
+typedef struct {
+	unsigned long t;
+	int16_t i;
+} Sample;
+
 void native_ina219_limit() {
 	static unsigned long last_measure = 0;
 

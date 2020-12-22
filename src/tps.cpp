@@ -11,15 +11,12 @@ Tps::Tps(Gui &gui, LoadSimulator &load_simulator, RgbLed &rgb_led, LoadSensor &l
     : gui_{gui}, load_simulator_{load_simulator}, rgb_led_{rgb_led}, load_sensor_{load_sensor}, stats_{stats} {}
 
 bool Tps::try_switch_to_measure(LoadType type) {
-	auto raw_val = load_sensor_.read(type);
+	// Record sample
+	auto res = stats_.add_sample(load_sensor_.read((type)));
 
-	if (raw_val != INT16_MAX && raw_val > CurrentThreshold) {
+	if (res == SampleStatus::High) {
 		// Reset timer
 		inactivity_start_ = Platform.millis();
-
-		// Record sample
-		stats_.reset();
-		stats_.add_sample(raw_val);
 
 		// Change state
 		switch (type) {
@@ -142,11 +139,11 @@ void Tps::poll_measure(LoadType type) {
 
 	// An active sample resets the inactivity timer
 	switch (res) {
-	case SampleStatus::Valid:
+	case SampleStatus::High:
 	case SampleStatus::Invalid:
 		inactivity_start_ = now;
 		break;
-	case SampleStatus::Zero:
+	case SampleStatus::Low:
 		break;
 	}
 
@@ -156,8 +153,8 @@ void Tps::poll_measure(LoadType type) {
 
 		// Update statistics
 		if (stats_.update_stats()) {
-			stat_freq_ = (stat_freq_ + stats_.get_freq()) / 2.f;
-			stat_duty_cycle_ = (stat_duty_cycle_ + stats_.get_duty_cycle()) / 2.f;
+			stat_freq_ = stats_.get_freq();
+			stat_duty_cycle_ = stats_.get_duty_cycle();
 			stat_type_ = type;
 		}
 
@@ -222,9 +219,12 @@ void Tps::poll() {
 
 	// Update load simulator, this always runs regardless of the state machine state
 	LoadType expected_type = ((now / LoadSimulator_Type_Period) % 2) == 0 ? LoadType::Liner : LoadType::Shader;
-	float expected = simulate_load_ ? ((now / LoadSimulator_Value_Period) % LoadSimulator_Value_Steps) /
-					      static_cast<float>(LoadSimulator_Value_Steps)
-					: 0.f;
+	auto expected_raw_idx = ((now / LoadSimulator_Value_Period) % LoadSimulator_Value_Steps);
+	float expected = simulate_load_
+			     ? (expected_raw_idx % 2 == 1
+				    ? 0
+				    : (expected_raw_idx / 2) / static_cast<float>(LoadSimulator_Value_Steps / 2))
+			     : 0.f;
 
 	if (last_load_simulator_type_ != expected_type || expected != last_load_simulator_expected_) {
 		// Update load

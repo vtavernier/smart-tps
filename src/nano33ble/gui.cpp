@@ -32,10 +32,10 @@ class OledGuiImpl : public GuiImpl {
 		oled_.setCursor(0, 0);
 
 		// Print current measure
-		sprintf(buf_, "%3.2fHz", data.frequency);
+		sprintf(buf_, "%3.1fHz", data.frequency);
 		oled_.println(buf_);
 
-		sprintf(buf_, "%3.2f%%", data.duty_cycle);
+		sprintf(buf_, "%2.0f%%", data.duty_cycle);
 		oled_.println(buf_);
 
 		// Blank line
@@ -43,7 +43,7 @@ class OledGuiImpl : public GuiImpl {
 
 		// Print expected values if in test mode
 		if (data.expected_enabled) {
-			sprintf(buf_, "%s: %3.2f%%", data.expected_load_type == LoadType::Liner ? "L" : "S",
+			sprintf(buf_, "%s: %2.0f%%", data.expected_load_type == LoadType::Liner ? "L" : "S",
 				data.expected_duty_cycle);
 			oled_.println(buf_);
 		}

@@ -21,11 +21,11 @@ class StdoutGuiImpl : public GuiImpl {
 	void show_splash(const SplashData &data) override { printw(PREFIX "version: " TPS_VERSION "\n"); }
 
 	void show_stats(const StatsData &data) override {
-		printw(PREFIX "%s: frequency: %3.2fHz duty_cycle: %3.2f%% state: %s screen_lasts: %lus\n",
+		printw(PREFIX "%s: frequency: %3.1fHz duty_cycle: %2.0f%% state: %s screen_lasts: %lus\n",
 		       data.type == LoadType::Liner ? "L" : "S", data.frequency, data.duty_cycle,
 		       stateToString(data.current_state), data.screen_lasts);
 		if (data.expected_enabled) {
-			printw(PREFIX "expected_duty_cycle: %s: %3.2f%%\n",
+			printw(PREFIX "expected_duty_cycle: %s: %2.0f%%\n",
 			       data.expected_load_type == LoadType::Liner ? "L" : "S", data.expected_duty_cycle);
 		} else {
 			printw("\n");

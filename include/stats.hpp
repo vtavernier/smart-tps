@@ -4,43 +4,66 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/// Threshold value for detecting current, in 10ths of mA
-const int16_t CurrentThreshold = 1250; // 125 mA
+/// Threshold value for detecting high samples, in 10ths of mA
+const int16_t CurrentThreshold = 1000; // 100 mA
 
-/// Threshold for classifying low and high values, in 10ths of mA
-const int16_t CurrentStepThreshold = 500; // 50 mA
+/// Lower bound for histogram
+const int16_t HistogramFrequencyLow = 0; // 0Hz
 
-struct Sample {
-	unsigned long t;
-	uint16_t i;
-};
+/// Higher bound for histogram
+const int16_t HistogramFrequencyHigh = 2000; // 200Hz
 
-const size_t SAMPLE_COUNT = 100;
+/// Histogram bin step
+const int16_t HistogramFrequencyStep = 5; // .5Hz
 
-typedef Sample SampleBuffer[SAMPLE_COUNT];
+/// Histogram bin count
+const int16_t HistogramFrequencyBinCount =
+    (HistogramFrequencyHigh - HistogramFrequencyLow) / HistogramFrequencyStep + 1;
+
+/// Higher bound of uncommitted low samples: 10 periods of the max frequency at the typical sample rate
+const uint16_t MaxUncomittedLowSamples = (10 * 1600 / (HistogramFrequencyHigh / 10));
+
+/// Histogram data structure
+typedef struct {
+	/// Sample counts
+	uint8_t counts[HistogramFrequencyBinCount];
+	/// Total count
+	uint16_t total;
+} Histogram;
+
+/// Minimum number of samples needed to compute stats
+const uint16_t MinSampleCount = 25;
 
 enum class SampleStatus {
 	Invalid,
-	Valid,
-	Zero,
+	High,
+	Low,
 };
 
 class Stats {
-	SampleBuffer samples;
-	size_t valid_samples;
-	size_t samples_idx;
-	size_t zero_samples;
+	/// Frequency histogram
+	Histogram hist_;
 
-	unsigned long rising_edges[SAMPLE_COUNT];
+	/// Last rising edge time
+	unsigned long last_rising_edge_t_;
+	/// Was the last sample a high or low sample
+	bool currently_high_;
 
-	float stat_freq;
-	float stat_duty_cycle;
+	/// Number of low samples
+	uint16_t low_samples_;
+	/// Number of high samples
+	uint16_t high_samples_;
+	/// Number of uncommitted low samples
+	uint16_t uncommitted_low_samples_;
+
+	float stat_freq_;
+	float stat_duty_cycle_;
 
       public:
 	Stats();
 
-	inline float get_freq() const { return stat_freq; }
-	inline float get_duty_cycle() const { return stat_duty_cycle; }
+	inline float get_freq() const { return stat_freq_; }
+	inline float get_duty_cycle() const { return stat_duty_cycle_; }
 
 	void reset();
 
